@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="مساعد الطبيب">
+<title>مساعد الطبيب اليومي</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
+  body.en{direction:ltr;text-align:left}
+  body.ar{direction:rtl;text-align:right}
+
+  .topbar{background:#fff;border-bottom:1px solid #e8e8e8;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+  .topbar-title{font-size:16px;font-weight:600;color:#1a1a1a}
+  .topbar-sub{font-size:12px;color:#888;margin-top:1px}
+  .lang-toggle{display:flex;background:#f0f0f0;border-radius:8px;padding:2px}
+  .lang-btn{padding:5px 12px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-size:13px;color:#666;font-weight:500}
+  .lang-btn.active{background:#fff;color:#1a1a1a;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+
+  .nav{display:flex;background:#fff;border-top:1px solid #e8e8e8;position:fixed;bottom:0;left:0;right:0;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+  .nav-btn{flex:1;padding:10px 4px 8px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:#999;font-size:10px;font-weight:500}
+  .nav-btn.active{color:#1a1a1a}
+  .nav-btn svg{width:22px;height:22px;stroke-width:1.8}
+  .nav-indicator{width:4px;height:4px;border-radius:50%;background:#1a1a1a;opacity:0;margin-top:2px}
+  .nav-btn.active .nav-indicator{opacity:1}
+
+  .content{padding:16px;padding-bottom:90px}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  .stat-card{background:#fff;border-radius:12px;padding:14px 10px;text-align:center;border:1px solid #f0f0f0}
+  .stat-num{font-size:26px;font-weight:700;color:#1a1a1a}
+  .stat-lbl{font-size:11px;color:#888;margin-top:3px;line-height:1.3}
+
+  .card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid #f0f0f0}
+  .card-title{font-size:13px;font-weight:600;color:#888;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.3px}
+
+  input,select,textarea{width:100%;padding:11px 13px;border:1px solid #e8e8e8;border-radius:10px;background:#fafafa;color:#1a1a1a;font-size:15px;font-family:inherit;outline:none;transition:border 0.15s}
+  input:focus,select:focus,textarea:focus{border-color:#1a1a1a;background:#fff}
+  textarea{resize:vertical;min-height:90px;line-height:1.6}
+
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .form-row.full{grid-template-columns:1fr}
+
+  .btn-primary{background:#1a1a1a;color:#fff;border:none;padding:14px;border-radius:12px;cursor:pointer;font-size:15px;font-weight:600;width:100%;font-family:inherit;transition:opacity 0.15s}
+  .btn-primary:active{opacity:0.85}
+  .btn-voice{display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid #e8e8e8;border-radius:10px;background:#fafafa;color:#555;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:12px;transition:all 0.15s}
+  .btn-voice.recording{border-color:#ef4444;color:#ef4444;background:#fff5f5}
+  .btn-voice svg{width:16px;height:16px;flex-shrink:0}
+
+  .patient-item{padding:13px 0;border-bottom:1px solid #f0f0f0}
+  .patient-item:last-child{border-bottom:none}
+  .patient-name{font-size:15px;font-weight:600;color:#1a1a1a}
+  .patient-meta{font-size:12px;color:#888;margin-top:3px}
+  .patient-complaint{font-size:13px;color:#555;margin-top:5px;line-height:1.5}
+  .patient-actions{display:flex;gap:6px;margin-top:8px}
+  .action-chip{padding:5px 12px;border:1px solid #e8e8e8;border-radius:20px;font-size:12px;cursor:pointer;background:#fafafa;color:#555;font-family:inherit}
+  .action-chip.danger{border-color:#fecaca;color:#ef4444;background:#fff5f5}
+  .action-chip.active{border-color:#fbbf24;color:#92400e;background:#fffbeb}
+
+  .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;margin-inline-start:6px}
+  .badge-home{background:#dcfce7;color:#166534}
+  .badge-clinic{background:#dbeafe;color:#1e40af}
+  .badge-followup{background:#fef3c7;color:#92400e}
+
+  .schedule-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f0f0f0}
+  .schedule-item:last-child{border-bottom:none}
+  .schedule-time{font-size:13px;font-weight:600;color:#888;min-width:48px;padding-top:2px}
+  .schedule-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+  .dot-home{background:#22c55e}
+  .dot-clinic{background:#3b82f6}
+  .schedule-name{font-size:15px;font-weight:600;color:#1a1a1a}
+  .schedule-loc{font-size:12px;color:#888;margin-top:2px}
+
+  .ai-bubble{background:#f8f8f8;border-radius:12px;padding:14px;font-size:14px;line-height:1.8;color:#1a1a1a;margin-top:12px;border-inline-start:3px solid #22c55e}
+  .ai-loading{color:#888;font-size:13px;padding:8px 0;display:flex;align-items:center;gap:8px}
+  .spinner{width:16px;height:16px;border:2px solid #e8e8e8;border-top-color:#1a1a1a;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .quick-btn{padding:12px;border:1px solid #e8e8e8;border-radius:12px;background:#fafafa;color:#1a1a1a;font-size:13px;cursor:pointer;font-family:inherit;text-align:center;line-height:1.4;font-weight:500;transition:all 0.15s}
+  .quick-btn:active{background:#f0f0f0}
+
+  .empty-state{text-align:center;padding:32px 16px;color:#bbb;font-size:14px}
+  .empty-icon{font-size:36px;margin-bottom:10px}
+
+  .section{display:none}
+  .section.active{display:block}
+
+  .install-banner{background:#1a1a1a;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .install-banner button{background:#fff;color:#1a1a1a;border:none;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600}
+  .install-banner.hidden{display:none}
+
+  @media(min-width:600px){
+    .content{max-width:600px;margin:0 auto}
+    .nav{max-width:600px;margin:0 auto;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #e8e8e8;border-bottom:none}
+  }
+</style>
+</head>
+<body class="ar">
+
+<div id="install-banner" class="install-banner hidden">
+  <span id="install-text">ثبّت الـ App على موبايلك</span>
+  <button onclick="installApp()" id="install-btn">تثبيت</button>
+</div>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title" id="header-title">مساعدك الطبي اليومي</div>
+    <div class="topbar-sub" id="header-sub"></div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('ar')">عربي</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <div id="section-dashboard" class="section active">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="stat-today">0</div><div class="stat-lbl" id="lbl-today">مريض اليوم</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-lbl" id="lbl-total">إجمالي المرضي</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-followup">0</div><div class="stat-lbl" id="lbl-followup">متابعة مطلوبة</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="lbl-ai-dash">اقتراحات AI</div>
+      <div id="dash-insights"><div class="empty-state"><div class="empty-icon">🤖</div><span id="empty-insights">سجّل مرضاك الأول عشان تشوف اقتراحات هنا</span></div></div>
+    </div>
+  </div>
+
+  <div id="section-patients" class="section">
+    <div class="card">
+      <div class="card-title" id="lbl-add-patient">تسجيل مريض جديد</div>
+      <div class="form-row">
+        <input type="text" id="p-name" placeholder="اسم المريض">
+        <input type="tel" id="p-phone" placeholder="رقم الموبايل">
+      </div>
+      <div class="form-row">
+        <select id="p-type">
+          <option value="home">زيارة منزل</option>
+          <option value="clinic">عيادة</option>
+        </select>
+        <input type="text" id="p-location" placeholder="المنطقة">
+      </div>
+      <div class="form-row full">
+        <textarea id="p-complaint" placeholder="الشكوى والملاحظات..."></textarea>
+      </div>
+      <button class="btn-voice" id="voice-btn" onclick="toggleVoice('p-complaint','voice-btn','voice-lbl')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        <span id="voice-lbl">تسجيل صوتي</span>
+      </button>
+      <button class="btn-primary" onclick="addPatient()" id="btn-save">حفظ المريض</button>
+    </div>
+    <div class="card">
+      <div class="card-title" id="lbl-patient-list">قائمة المرضي</div>
+      <div id="patient-list"><div class="empty-state"><div class="empty-icon">👨‍⚕️</div><span id="empty-patients">مفيش مرضي لسه</span></div></div>
+    </div>
+  </div>
+
+  <div id="section-schedule" class="section">
+    <div class="card">
+      <div class="card-title" id="lbl-today-sched">جدول اليوم</div>
+      <div id="schedule-list"><div class="empty-state"><div class="empty-icon">📅</div><span id="empty-sched">مفيش مواعيد اليوم</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="lbl-add-appt">إضافة موعد</div>
+      <div class="form-row">
+        <input type="time" id="appt-time">
+        <select id="appt-patient"></select>
+      </div>
+      <div class="form-row full" style="margin-bottom:14px">
+        <input type="text" id="appt-note" placeholder="ملاحظة (اختياري)">
+      </div>
+      <button class="btn-primary" onclick="addAppointment()" id="btn-appt">إضافة للجدول</button>
+    </div>
+  </div>
+
+  <div id="section-acquire" class="section">
+    <div class="card">
+      <div class="card-title" id="lbl-ask-ai">اسأل AI</div>
+      <textarea id="acquire-input" placeholder="مثال: أنا طبيب عام في المعادي، عندي 5 مرضي بس، ايه اللي أعمله عشان أجيب أكتر؟" style="margin-bottom:10px"></textarea>
+      <button class="btn-voice" id="acquire-voice-btn" onclick="toggleVoice('acquire-input','acquire-voice-btn','acquire-voice-lbl')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        <span id="acquire-voice-lbl">تسجيل صوتي</span>
+      </button>
+      <button class="btn-primary" onclick="getAdvice()" id="btn-advice">اسأل AI</button>
+      <div id="advice-result"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="lbl-quick">أفعال سريعة</div>
+      <div class="quick-grid">
+        <button class="quick-btn" onclick="quickAction('referral')" id="q-referral">رسالة إحالة من مريض</button>
+        <button class="quick-btn" onclick="quickAction('social')" id="q-social">بوست سوشيال ميديا</button>
+        <button class="quick-btn" onclick="quickAction('followup')" id="q-followup">رسالة متابعة</button>
+        <button class="quick-btn" onclick="quickAction('bio')" id="q-bio">تعريف بنفسك</button>
+      </div>
+      <div id="quick-result"></div>
+    </div>
+  </div>
+
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showSection('dashboard')" id="nav-dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span id="nav-lbl-dashboard">الداشبورد</span>
+    <div class="nav-indicator"></div>
+  </button>
+  <button class="nav-btn" onclick="showSection('patients')" id="nav-patients">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span id="nav-lbl-patients">المرضي</span>
+    <div class="nav-indicator"></div>
+  </button>
+  <button class="nav-btn" onclick="showSection('schedule')" id="nav-schedule">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span id="nav-lbl-schedule">الجدول</span>
+    <div class="nav-indicator"></div>
+  </button>
+  <button class="nav-btn" onclick="showSection('acquire')" id="nav-acquire">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    <span id="nav-lbl-acquire">جلب عملاء</span>
+    <div class="nav-indicator"></div>
+  </button>
+</nav>
+
+<script>
+const APIKEY = '';
+let lang = 'ar';
+let patients = JSON.parse(localStorage.getItem('doc_patients')||'[]');
+let appointments = JSON.parse(localStorage.getItem('doc_appts')||'[]');
+let recognition = null;
+let recordingTarget = null;
+let deferredPrompt = null;
+
+const T = {
+  ar:{
+    'header-title':'مساعدك الطبي اليومي',
+    'lbl-today':'مريض اليوم','lbl-total':'إجمالي المرضي','lbl-followup':'متابعة مطلوبة',
+    'lbl-ai-dash':'اقتراحات AI','empty-insights':'سجّل مرضاك الأول عشان تشوف اقتراحات هنا',
+    'lbl-add-patient':'تسجيل مريض جديد','btn-save':'حفظ المريض',
+    'lbl-patient-list':'قائمة المرضي','empty-patients':'مفيش مرضي لسه',
+    'lbl-today-sched':'جدول اليوم','empty-sched':'مفيش مواعيد اليوم',
+    'lbl-add-appt':'إضافة موعد','btn-appt':'إضافة للجدول',
+    'lbl-ask-ai':'اسأل AI','btn-advice':'اسأل AI',
+    'lbl-quick':'أفعال سريعة',
+    'q-referral':'رسالة إحالة من مريض','q-social':'بوست سوشيال ميديا',
+    'q-followup':'رسالة متابعة','q-bio':'تعريف بنفسك',
+    'nav-lbl-dashboard':'الداشبورد','nav-lbl-patients':'المرضي',
+    'nav-lbl-schedule':'الجدول','nav-lbl-acquire':'جلب عملاء',
+    'voice-lbl':'تسجيل صوتي','acquire-voice-lbl':'تسجيل صوتي',
+    'recording':'جاري التسجيل...','home':'منزل','clinic':'عيادة',
+    'followup-badge':'متابعة','follow':'متابعة','delete':'حذف',
+    'thinking':'AI بيفكر...','select-patient':'اختار مريض',
+    'install-text':'ثبّت الـ App على موبايلك','install-btn':'تثبيت',
+    'type-home':'زيارة منزل','type-clinic':'عيادة',
+  },
+  en:{
+    'header-title':'Your Daily Medical Assistant',
+    'lbl-today':"Today's Patients",'lbl-total':'Total Patients','lbl-followup':'Follow-ups',
+    'lbl-ai-dash':'AI Insights','empty-insights':'Add your first patient to see insights',
+    'lbl-add-patient':'Add New Patient','btn-save':'Save Patient',
+    'lbl-patient-list':'Patient List','empty-patients':'No patients yet',
+    'lbl-today-sched':"Today's Schedule",'empty-sched':'No appointments today',
+    'lbl-add-appt':'Add Appointment','btn-appt':'Add to Schedule',
+    'lbl-ask-ai':'Ask AI','btn-advice':'Ask AI',
+    'lbl-quick':'Quick Actions',
+    'q-referral':'Referral Message','q-social':'Social Media Post',
+    'q-followup':'Follow-up Message','q-bio':'Intro Bio',
+    'nav-lbl-dashboard':'Dashboard','nav-lbl-patients':'Patients',
+    'nav-lbl-schedule':'Schedule','nav-lbl-acquire':'Get Clients',
+    'voice-lbl':'Voice Input','acquire-voice-lbl':'Voice Input',
+    'recording':'Recording...','home':'Home','clinic':'Clinic',
+    'followup-badge':'Follow-up','follow':'Follow-up','delete':'Delete',
+    'thinking':'AI thinking...','select-patient':'Select patient',
+    'install-text':'Add app to home screen','install-btn':'Install',
+    'type-home':'Home Visit','type-clinic':'Clinic',
+  }
+};
+
+function t(key){ return T[lang][key]||key; }
+
+function setLang(l){
+  lang=l;
+  document.body.className=l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');
+  Object.keys(T[l]).forEach(k=>{const el=document.getElementById(k);if(el)el.textContent=T[l][k];});
+  const hs=document.getElementById('header-sub');
+  if(hs)hs.textContent=getDateStr();
+  const ptype=document.getElementById('p-type');
+  if(ptype){ptype.options[0].text=t('type-home');ptype.options[1].text=t('type-clinic');}
+  renderPatients();renderSchedule();updatePatientSelect();
+}
+
+function getDateStr(){
+  const d=new Date();
+  return lang==='ar'
+    ? d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'})
+    : d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+}
+
+function showSection(s){
+  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('section-'+s).classList.add('active');
+  document.getElementById('nav-'+s).classList.add('active');
+}
+
+function addPatient(){
+  const name=document.getElementById('p-name').value.trim();
+  if(!name)return;
+  const today=new Date().toISOString().split('T')[0];
+  patients.push({
+    id:Date.now(),
+    name,
+    phone:document.getElementById('p-phone').value.trim(),
+    type:document.getElementById('p-type').value,
+    location:document.getElementById('p-location').value.trim(),
+    complaint:document.getElementById('p-complaint').value.trim(),
+    date:today,followup:false
+  });
+  localStorage.setItem('doc_patients',JSON.stringify(patients));
+  ['p-name','p-phone','p-location','p-complaint'].forEach(id=>document.getElementById(id).value='');
+  renderPatients();updateStats();updatePatientSelect();
+}
+
+function toggleFollowup(id){
+  const p=patients.find(x=>x.id===id);
+  if(p){p.followup=!p.followup;localStorage.setItem('doc_patients',JSON.stringify(patients));renderPatients();updateStats();}
+}
+
+function deletePatient(id){
+  if(!confirm(lang==='ar'?'تحذف المريض ده؟':'Delete this patient?'))return;
+  patients=patients.filter(x=>x.id!==id);
+  localStorage.setItem('doc_patients',JSON.stringify(patients));
+  appointments=appointments.filter(a=>a.patientId!==id);
+  localStorage.setItem('doc_appts',JSON.stringify(appointments));
+  renderPatients();updateStats();updatePatientSelect();renderSchedule();
+}
+
+function renderPatients(){
+  const list=document.getElementById('patient-list');
+  if(!patients.length){
+    list.innerHTML=`<div class="empty-state"><div class="empty-icon">👨‍⚕️</div><span>${t('empty-patients')}</span></div>`;
+    return;
+  }
+  list.innerHTML=[...patients].reverse().map(p=>{
+    const typeBadge=p.type==='home'
+      ?`<span class="badge badge-home">${t('home')}</span>`
+      :`<span class="badge badge-clinic">${t('clinic')}</span>`;
+    const fuBadge=p.followup?`<span class="badge badge-followup">${t('followup-badge')}</span>`:'';
+    return `<div class="patient-item">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
+        <span class="patient-name">${p.name}</span>${typeBadge}${fuBadge}
+      </div>
+      ${p.location?`<div class="patient-meta">${p.location}${p.phone?' · '+p.phone:''}</div>`:''}
+      ${p.complaint?`<div class="patient-complaint">${p.complaint.substring(0,100)}${p.complaint.length>100?'...':''}</div>`:''}
+      <div class="patient-actions">
+        <button class="action-chip${p.followup?' active':''}" onclick="toggleFollowup(${p.id})">${t('follow')}</button>
+        <button class="action-chip danger" onclick="deletePatient(${p.id})">${t('delete')}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats(){
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('stat-today').textContent=patients.filter(p=>p.date===today).length;
+  document.getElementById('stat-total').textContent=patients.length;
+  document.getElementById('stat-followup').textContent=patients.filter(p=>p.followup).length;
+  if(patients.length>0)generateInsights();
+}
+
+function generateInsights(){
+  const c=document.getElementById('dash-insights');
+  c.innerHTML=`<div class="ai-loading"><div class="spinner"></div><span>${t('thinking')}</span></div>`;
+  const today=new Date().toISOString().split('T')[0];
+  const todayPts=patients.filter(p=>p.date===today).length;
+  const fus=patients.filter(p=>p.followup).length;
+  const homes=patients.filter(p=>p.type==='home').length;
+  const prompt=lang==='ar'
+    ?`أنت مساعد طبي لطبيب حديث التخرج في مصر. عنده ${patients.length} مريض إجمالاً، ${todayPts} اليوم، ${fus} محتاجين متابعة، و${homes} زيارة منزل. اديه 3 اقتراحات عملية قصيرة بالعربي المصري الدارج عشان يحسن شغله. بدون مقدمات.`
+    :`You're an assistant for a new Egyptian doctor. ${patients.length} total patients, ${todayPts} today, ${fus} needing follow-up, ${homes} home visits. Give 3 short practical tips to improve their practice. No preamble.`;
+  callAI(prompt,txt=>{ c.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`; },
+    ()=>{ c.innerHTML=`<div class="ai-bubble">${lang==='ar'?'فيه مشكلة في الاتصال':'Connection error'}</div>`; });
+}
+
+function addAppointment(){
+  const time=document.getElementById('appt-time').value;
+  const patId=document.getElementById('appt-patient').value;
+  if(!time||!patId)return;
+  const today=new Date().toISOString().split('T')[0];
+  appointments.push({id:Date.now(),time,patientId:parseInt(patId),note:document.getElementById('appt-note').value.trim(),date:today});
+  localStorage.setItem('doc_appts',JSON.stringify(appointments));
+  document.getElementById('appt-time').value='';
+  document.getElementById('appt-note').value='';
+  renderSchedule();
+}
+
+function renderSchedule(){
+  const list=document.getElementById('schedule-list');
+  const today=new Date().toISOString().split('T')[0];
+  const todayAppts=appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+  if(!todayAppts.length){
+    list.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><span>${t('empty-sched')}</span></div>`;
+    return;
+  }
+  list.innerHTML=todayAppts.map(a=>{
+    const p=patients.find(x=>x.id===a.patientId);
+    if(!p)return'';
+    return`<div class="schedule-item">
+      <div class="schedule-time">${a.time}</div>
+      <div class="schedule-dot ${p.type==='home'?'dot-home':'dot-clinic'}"></div>
+      <div>
+        <div class="schedule-name">${p.name}</div>
+        <div class="schedule-loc">${p.type==='home'?t('home'):t('clinic')}${p.location?' · '+p.location:''}${a.note?' · '+a.note:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updatePatientSelect(){
+  const sel=document.getElementById('appt-patient');
+  sel.innerHTML=`<option value="">${t('select-patient')}</option>`+patients.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+function getAdvice(){
+  const input=document.getElementById('acquire-input').value.trim();
+  const r=document.getElementById('advice-result');
+  if(!input)return;
+  r.innerHTML=`<div class="ai-loading"><div class="spinner"></div><span>${t('thinking')}</span></div>`;
+  const prompt=lang==='ar'
+    ?`أنت خبير تسويق طبي في مصر. الطبيب بيقول: "${input}". اديه خطة عملية (3-4 خطوات) عشان يجيب عملاء جدد. بالعربي المصري الدارج. بدون مقدمات.`
+    :`You're a medical marketing expert in Egypt. The doctor says: "${input}". Give a practical 3-4 step plan to get new patients. No preamble.`;
+  callAI(prompt,txt=>{ r.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`; },
+    ()=>{ r.innerHTML=`<div class="ai-bubble">${lang==='ar'?'فيه مشكلة':'Error'}</div>`; });
+}
+
+function quickAction(type){
+  const r=document.getElementById('quick-result');
+  r.innerHTML=`<div class="ai-loading"><div class="spinner"></div><span>${t('thinking')}</span></div>`;
+  const prompts={
+    referral:lang==='ar'?'اكتب رسالة واتساب قصيرة (3 جمل) لطبيب حديث التخرج في مصر يطلب من مرضاه إحالة أصدقائهم. بالعربي المصري الدارج.':'Write a short WhatsApp message (3 sentences) for a new Egyptian doctor asking patients to refer friends.',
+    social:lang==='ar'?'اكتب بوست سوشيال ميديا لطبيب حديث التخرج في مصر بيعمل زيارات منازل. 4-5 أسطر. بالعربي.':'Write a 4-5 line social media post for a new Egyptian doctor doing home visits.',
+    followup:lang==='ar'?'اكتب رسالة واتساب متابعة من طبيب لمريض زاره الأسبوع الماضي. قصيرة ومهنية. بالعربي المصري.':'Write a short professional follow-up WhatsApp from a doctor to a patient visited last week.',
+    bio:lang==='ar'?'اكتب bio قصير (5 أسطر) لطبيب حديث التخرج في مصر بيعمل زيارات منازل وعيادة. للواتساب والسوشيال. بالعربي.':'Write a 5-line bio for a new Egyptian doctor doing home visits and clinic. For WhatsApp and social media.',
+  };
+  callAI(prompts[type],txt=>{ r.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`; },
+    ()=>{ r.innerHTML=`<div class="ai-bubble">${lang==='ar'?'فيه مشكلة':'Error'}</div>`; });
+}
+
+function callAI(prompt,onSuccess,onError){
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  }).then(r=>r.json()).then(d=>{
+    const txt=d.content?.filter(x=>x.type==='text').map(x=>x.text).join('')||'';
+    if(txt)onSuccess(txt); else onError();
+  }).catch(onError);
+}
+
+function toggleVoice(targetId,btnId,lblId){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    alert(lang==='ar'?'المتصفح مش بيدعم الصوت — استخدم Chrome':'Voice not supported — use Chrome');
+    return;
+  }
+  const btn=document.getElementById(btnId);
+  const lbl=document.getElementById(lblId);
+  if(recordingTarget===targetId&&recognition){
+    recognition.stop();recordingTarget=null;
+    btn.classList.remove('recording');lbl.textContent=t(lblId);
+    return;
+  }
+  if(recognition)recognition.stop();
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();
+  recognition.lang=lang==='ar'?'ar-EG':'en-US';
+  recognition.continuous=false;recognition.interimResults=false;
+  recognition.onresult=e=>{
+    const el=document.getElementById(targetId);
+    el.value+=(el.value?' ':'')+e.results[0][0].transcript;
+    recordingTarget=null;btn.classList.remove('recording');lbl.textContent=t(lblId);
+  };
+  recognition.onerror=recognition.onend=()=>{
+    if(recordingTarget===targetId){recordingTarget=null;btn.classList.remove('recording');lbl.textContent=t(lblId);}
+  };
+  recognition.start();
+  recordingTarget=targetId;btn.classList.add('recording');lbl.textContent=t('recording');
+}
+
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  const banner=document.getElementById('install-banner');
+  banner.classList.remove('hidden');
+});
+
+function installApp(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').classList.add('hidden');});}
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+document.getElementById('header-sub').textContent=getDateStr();
+renderPatients();renderSchedule();updateStats();updatePatientSelect();
+</script>
+</body>
+</html>
