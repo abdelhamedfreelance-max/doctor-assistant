@@ -2,306 +2,335 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#3B82F6">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="مساعد الطبيب">
-<title>مساعد الطبيب اليومي</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="طبيبي">
+<title>طبيبي - مساعد الطبيب</title>
 <link rel="manifest" href="manifest.json">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
-  body.en{direction:ltr;text-align:left}
-  body.ar{direction:rtl;text-align:right}
-
-  .topbar{background:#fff;border-bottom:1px solid #e8e8e8;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
-  .topbar-title{font-size:16px;font-weight:600;color:#1a1a1a}
-  .topbar-sub{font-size:12px;color:#888;margin-top:1px}
-  .lang-toggle{display:flex;background:#f0f0f0;border-radius:8px;padding:2px}
-  .lang-btn{padding:5px 12px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-size:13px;color:#666;font-weight:500}
-  .lang-btn.active{background:#fff;color:#1a1a1a;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-
-  .nav{display:flex;background:#fff;border-top:1px solid #e8e8e8;position:fixed;bottom:0;left:0;right:0;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-  .nav-btn{flex:1;padding:10px 4px 8px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:#999;font-size:10px;font-weight:500}
-  .nav-btn.active{color:#1a1a1a}
-  .nav-btn svg{width:22px;height:22px;stroke-width:1.8}
-  .nav-indicator{width:4px;height:4px;border-radius:50%;background:#1a1a1a;opacity:0;margin-top:2px}
-  .nav-btn.active .nav-indicator{opacity:1}
-
-  .content{padding:16px;padding-bottom:90px}
-
-  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-  .stat-card{background:#fff;border-radius:12px;padding:14px 10px;text-align:center;border:1px solid #f0f0f0}
-  .stat-num{font-size:26px;font-weight:700;color:#1a1a1a}
-  .stat-lbl{font-size:11px;color:#888;margin-top:3px;line-height:1.3}
-
-  .card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid #f0f0f0}
-  .card-title{font-size:13px;font-weight:600;color:#888;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.3px}
-
-  input,select,textarea{width:100%;padding:11px 13px;border:1px solid #e8e8e8;border-radius:10px;background:#fafafa;color:#1a1a1a;font-size:15px;font-family:inherit;outline:none;transition:border 0.15s}
-  input:focus,select:focus,textarea:focus{border-color:#1a1a1a;background:#fff}
-  textarea{resize:vertical;min-height:90px;line-height:1.6}
-
-  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-  .form-row.full{grid-template-columns:1fr}
-
-  .btn-primary{background:#1a1a1a;color:#fff;border:none;padding:14px;border-radius:12px;cursor:pointer;font-size:15px;font-weight:600;width:100%;font-family:inherit;transition:opacity 0.15s}
-  .btn-primary:active{opacity:0.85}
-  .btn-voice{display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid #e8e8e8;border-radius:10px;background:#fafafa;color:#555;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:12px;transition:all 0.15s}
-  .btn-voice.recording{border-color:#ef4444;color:#ef4444;background:#fff5f5}
-  .btn-voice svg{width:16px;height:16px;flex-shrink:0}
-
-  .patient-item{padding:13px 0;border-bottom:1px solid #f0f0f0}
-  .patient-item:last-child{border-bottom:none}
-  .patient-name{font-size:15px;font-weight:600;color:#1a1a1a}
-  .patient-meta{font-size:12px;color:#888;margin-top:3px}
-  .patient-complaint{font-size:13px;color:#555;margin-top:5px;line-height:1.5}
-  .patient-actions{display:flex;gap:6px;margin-top:8px}
-  .action-chip{padding:5px 12px;border:1px solid #e8e8e8;border-radius:20px;font-size:12px;cursor:pointer;background:#fafafa;color:#555;font-family:inherit}
-  .action-chip.danger{border-color:#fecaca;color:#ef4444;background:#fff5f5}
-  .action-chip.active{border-color:#fbbf24;color:#92400e;background:#fffbeb}
-
-  .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;margin-inline-start:6px}
-  .badge-home{background:#dcfce7;color:#166534}
-  .badge-clinic{background:#dbeafe;color:#1e40af}
-  .badge-followup{background:#fef3c7;color:#92400e}
-
-  .schedule-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f0f0f0}
-  .schedule-item:last-child{border-bottom:none}
-  .schedule-time{font-size:13px;font-weight:600;color:#888;min-width:48px;padding-top:2px}
-  .schedule-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
-  .dot-home{background:#22c55e}
-  .dot-clinic{background:#3b82f6}
-  .schedule-name{font-size:15px;font-weight:600;color:#1a1a1a}
-  .schedule-loc{font-size:12px;color:#888;margin-top:2px}
-
-  .ai-bubble{background:#f8f8f8;border-radius:12px;padding:14px;font-size:14px;line-height:1.8;color:#1a1a1a;margin-top:12px;border-inline-start:3px solid #22c55e}
-  .ai-loading{color:#888;font-size:13px;padding:8px 0;display:flex;align-items:center;gap:8px}
-  .spinner{width:16px;height:16px;border:2px solid #e8e8e8;border-top-color:#1a1a1a;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
-  @keyframes spin{to{transform:rotate(360deg)}}
-
-  .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .quick-btn{padding:12px;border:1px solid #e8e8e8;border-radius:12px;background:#fafafa;color:#1a1a1a;font-size:13px;cursor:pointer;font-family:inherit;text-align:center;line-height:1.4;font-weight:500;transition:all 0.15s}
-  .quick-btn:active{background:#f0f0f0}
-
-  .empty-state{text-align:center;padding:32px 16px;color:#bbb;font-size:14px}
-  .empty-icon{font-size:36px;margin-bottom:10px}
-
-  .section{display:none}
-  .section.active{display:block}
-
-  .install-banner{background:#1a1a1a;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
-  .install-banner button{background:#fff;color:#1a1a1a;border:none;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600}
-  .install-banner.hidden{display:none}
-
-  @media(min-width:600px){
-    .content{max-width:600px;margin:0 auto}
-    .nav{max-width:600px;margin:0 auto;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0;border:1px solid #e8e8e8;border-bottom:none}
-  }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --blue:#3B82F6;--blue-dark:#1D4ED8;--blue-light:#EFF6FF;--blue-mid:#DBEAFE;
+  --green:#10B981;--green-light:#D1FAE5;
+  --orange:#F59E0B;--orange-light:#FEF3C7;
+  --red:#EF4444;--red-light:#FEE2E2;
+  --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-400:#9CA3AF;--gray-600:#4B5563;--gray-800:#1F2937;--gray-900:#111827;
+  --white:#FFFFFF;
+  --radius-md:12px;--radius-lg:16px;--radius-xl:20px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.08);--shadow-md:0 4px 12px rgba(0,0,0,0.1);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;overflow-x:hidden}
+body.en{direction:ltr}
+body.ar{direction:rtl}
+.header{background:linear-gradient(135deg,#3B82F6 0%,#2563EB 100%);padding:20px 20px 28px;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.08);border-radius:50%}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start}
+.header-greeting{font-size:21px;font-weight:700;color:#fff;line-height:1.2}
+.header-date{font-size:13px;color:rgba(255,255,255,0.75);margin-top:3px}
+.header-time{font-size:18px;font-weight:700;color:#fff;opacity:0.9}
+.lang-toggle{display:flex;background:rgba(255,255,255,0.2);border-radius:20px;padding:2px;margin-top:6px}
+.lang-btn{padding:4px 12px;border:none;background:transparent;border-radius:20px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);font-weight:600}
+.lang-btn.active{background:#fff;color:var(--blue)}
+.earnings-card{background:#fff;border-radius:var(--radius-xl);padding:18px;margin:0 16px;margin-top:-16px;box-shadow:var(--shadow-md);border:1px solid var(--gray-100)}
+.earnings-label{font-size:12px;color:var(--gray-400);font-weight:500;margin-bottom:4px}
+.earnings-row{display:flex;align-items:center;justify-content:space-between}
+.earnings-amount{font-size:30px;font-weight:800;color:var(--gray-900)}
+.earnings-icon{width:44px;height:44px;background:var(--blue-light);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.earnings-icon svg{stroke:var(--blue);width:20px;height:20px}
+.earnings-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray-100)}
+.estat{text-align:center}
+.estat-num{font-size:20px;font-weight:700;color:var(--gray-900)}
+.estat-num.blue{color:var(--blue)}
+.estat-lbl{font-size:11px;color:var(--gray-400);margin-top:2px}
+.content{padding:16px;padding-bottom:90px}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.section-title{font-size:16px;font-weight:700;color:var(--gray-900)}
+.section-badge{background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.visit-card{background:#fff;border-radius:var(--radius-lg);padding:16px;margin-bottom:10px;box-shadow:var(--shadow-sm);border:1px solid var(--gray-100)}
+.visit-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.visit-time-badge{background:var(--blue);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px}
+.visit-type-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.vtype-home{background:var(--blue-mid);color:var(--blue-dark)}
+.vtype-clinic{background:var(--green-light);color:#065f46}
+.visit-name{font-size:16px;font-weight:700;color:var(--gray-900);margin-bottom:4px}
+.visit-complaint{font-size:13px;color:var(--gray-600);margin-bottom:10px}
+.visit-meta{display:flex;gap:12px;flex-wrap:wrap}
+.visit-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-400)}
+.visit-meta-item svg{width:13px;height:13px;stroke:var(--gray-400)}
+.visit-actions{display:flex;gap:8px;margin-top:12px}
+.btn-start{flex:1;background:var(--blue);color:#fff;border:none;padding:11px;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-secondary{flex:1;background:var(--gray-100);color:var(--gray-800);border:none;padding:11px;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.card{background:#fff;border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;box-shadow:var(--shadow-sm);border:1px solid var(--gray-100)}
+.card-title{font-size:12px;font-weight:700;color:var(--gray-400);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px}
+input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:#fff;color:var(--gray-900);font-size:15px;font-family:inherit;outline:none;transition:border 0.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.full{grid-template-columns:1fr}
+.form-label{font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:5px;display:block}
+.btn-primary{background:var(--blue);color:#fff;border:none;padding:14px;border-radius:var(--radius-md);cursor:pointer;font-size:15px;font-weight:700;width:100%;font-family:inherit}
+.btn-primary:active{opacity:0.85}
+.btn-voice{display:flex;align-items:center;gap:7px;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:#fff;color:var(--gray-600);font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:12px;font-weight:500}
+.btn-voice.recording{border-color:var(--red);color:var(--red);background:var(--red-light)}
+.btn-voice svg{width:16px;height:16px;flex-shrink:0}
+.patient-item{padding:14px 0;border-bottom:1px solid var(--gray-100)}
+.patient-item:last-child{border-bottom:none}
+.patient-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.patient-name{font-size:15px;font-weight:700;color:var(--gray-900)}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-home{background:var(--blue-mid);color:var(--blue-dark)}
+.badge-clinic{background:var(--green-light);color:#065f46}
+.badge-followup{background:var(--orange-light);color:#92400e}
+.patient-meta{font-size:12px;color:var(--gray-400);margin-bottom:5px}
+.patient-complaint{font-size:13px;color:var(--gray-600);line-height:1.5}
+.patient-chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.chip{padding:5px 12px;border:1.5px solid var(--gray-200);border-radius:20px;font-size:12px;cursor:pointer;background:#fff;color:var(--gray-600);font-family:inherit;font-weight:500}
+.chip.active{border-color:var(--orange);color:#92400e;background:var(--orange-light)}
+.chip.danger{border-color:var(--red-light);color:var(--red);background:var(--red-light)}
+.sched-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--gray-100)}
+.sched-item:last-child{border-bottom:none}
+.sched-time{font-size:12px;font-weight:700;color:var(--gray-400);min-width:48px;padding-top:3px}
+.sched-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.dot-home{background:var(--blue)}
+.dot-clinic{background:var(--green)}
+.sched-name{font-size:15px;font-weight:700;color:var(--gray-900)}
+.sched-loc{font-size:12px;color:var(--gray-400);margin-top:2px}
+.ai-bubble{background:var(--blue-light);border-radius:var(--radius-md);padding:14px;font-size:14px;line-height:1.8;color:var(--gray-800);margin-top:12px;border-inline-start:3px solid var(--blue)}
+.ai-loading{color:var(--gray-400);font-size:13px;padding:8px 0;display:flex;align-items:center;gap:8px}
+.spinner{width:16px;height:16px;border:2px solid var(--gray-200);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quick-btn{padding:14px 10px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:#fff;color:var(--gray-800);font-size:13px;cursor:pointer;font-family:inherit;text-align:center;line-height:1.4;font-weight:600}
+.quick-btn:active{background:var(--blue-light);border-color:var(--blue)}
+.quick-btn .qicon{font-size:20px;display:block;margin-bottom:5px}
+.finance-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.fcard{background:#fff;border-radius:var(--radius-md);padding:14px;border:1px solid var(--gray-100);box-shadow:var(--shadow-sm)}
+.fcard-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:18px}
+.fcard-num{font-size:20px;font-weight:800;color:var(--gray-900)}
+.fcard-lbl{font-size:11px;color:var(--gray-400);margin-top:2px}
+.fcard-blue .fcard-icon{background:var(--blue-light)}
+.fcard-green .fcard-icon{background:var(--green-light)}
+.fcard-orange .fcard-icon{background:var(--orange-light)}
+.fcard-red .fcard-icon{background:var(--red-light)}
+.visit-fee-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-100)}
+.visit-fee-row:last-child{border-bottom:none}
+.fee-name{font-size:14px;font-weight:600;color:var(--gray-800)}
+.fee-type{font-size:11px;color:var(--gray-400)}
+.fee-amount{font-size:15px;font-weight:700;color:var(--green)}
+.section{display:none}
+.section.active{display:block}
+.nav{background:#fff;border-top:1px solid var(--gray-100);position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 12px rgba(0,0,0,0.06)}
+.nav-btn{flex:1;padding:10px 4px 8px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--gray-400);font-size:10px;font-weight:600;font-family:inherit}
+.nav-btn.active{color:var(--blue)}
+.nav-btn svg{width:22px;height:22px;stroke-width:2}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--blue);opacity:0;margin-top:1px}
+.nav-btn.active .nav-dot{opacity:1}
+.empty-state{text-align:center;padding:28px 16px;color:var(--gray-400);font-size:14px}
+.empty-icon{font-size:32px;margin-bottom:8px}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 </style>
 </head>
 <body class="ar">
 
-<div id="install-banner" class="install-banner hidden">
-  <span id="install-text">ثبّت الـ App على موبايلك</span>
-  <button onclick="installApp()" id="install-btn">تثبيت</button>
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-greeting" id="greeting">صباح الخير، دكتور 👋</div>
+      <div class="header-date" id="header-date"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div class="header-time" id="header-time"></div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('ar')">عربي</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="topbar">
-  <div>
-    <div class="topbar-title" id="header-title">مساعدك الطبي اليومي</div>
-    <div class="topbar-sub" id="header-sub"></div>
+<div class="earnings-card">
+  <div class="earnings-label" id="lbl-earnings">أرباح اليوم</div>
+  <div class="earnings-row">
+    <div class="earnings-amount" id="earnings-amount">0 جنيه</div>
+    <div class="earnings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
   </div>
-  <div class="lang-toggle">
-    <button class="lang-btn active" onclick="setLang('ar')">عربي</button>
-    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  <div class="earnings-stats">
+    <div class="estat"><div class="estat-num" id="stat-completed">0</div><div class="estat-lbl" id="lbl-completed">مكتملة</div></div>
+    <div class="estat"><div class="estat-num blue" id="stat-remaining">0</div><div class="estat-lbl" id="lbl-remaining">متبقية</div></div>
+    <div class="estat"><div class="estat-num" id="stat-per-visit">150</div><div class="estat-lbl" id="lbl-per-visit">للزيارة (ج)</div></div>
   </div>
 </div>
 
 <div class="content">
 
-  <div id="section-dashboard" class="section active">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-num" id="stat-today">0</div><div class="stat-lbl" id="lbl-today">مريض اليوم</div></div>
-      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-lbl" id="lbl-total">إجمالي المرضي</div></div>
-      <div class="stat-card"><div class="stat-num" id="stat-followup">0</div><div class="stat-lbl" id="lbl-followup">متابعة مطلوبة</div></div>
+<div id="section-home" class="section active">
+  <div style="margin-top:16px">
+    <div class="section-header">
+      <span class="section-title" id="lbl-upcoming">الزيارات القادمة</span>
+      <span class="section-badge" id="upcoming-badge">0 اليوم</span>
     </div>
-    <div class="card">
-      <div class="card-title" id="lbl-ai-dash">اقتراحات AI</div>
-      <div id="dash-insights"><div class="empty-state"><div class="empty-icon">🤖</div><span id="empty-insights">سجّل مرضاك الأول عشان تشوف اقتراحات هنا</span></div></div>
-    </div>
+    <div id="upcoming-list"><div class="empty-state"><div class="empty-icon">📋</div><span id="empty-upcoming">مفيش زيارات اليوم — أضف من Ops</span></div></div>
   </div>
+  <div class="card" style="margin-top:8px">
+    <div class="card-title" id="lbl-ai-home">اقتراحات AI</div>
+    <div id="home-insights"><div class="empty-state" style="padding:12px 0"><span id="empty-insights">سجّل مرضاك الأول عشان تشوف اقتراحات</span></div></div>
+  </div>
+</div>
 
-  <div id="section-patients" class="section">
-    <div class="card">
-      <div class="card-title" id="lbl-add-patient">تسجيل مريض جديد</div>
-      <div class="form-row">
-        <input type="text" id="p-name" placeholder="اسم المريض">
-        <input type="tel" id="p-phone" placeholder="رقم الموبايل">
-      </div>
-      <div class="form-row">
-        <select id="p-type">
-          <option value="home">زيارة منزل</option>
-          <option value="clinic">عيادة</option>
-        </select>
-        <input type="text" id="p-location" placeholder="المنطقة">
-      </div>
-      <div class="form-row full">
-        <textarea id="p-complaint" placeholder="الشكوى والملاحظات..."></textarea>
-      </div>
-      <button class="btn-voice" id="voice-btn" onclick="toggleVoice('p-complaint','voice-btn','voice-lbl')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-        <span id="voice-lbl">تسجيل صوتي</span>
-      </button>
-      <button class="btn-primary" onclick="addPatient()" id="btn-save">حفظ المريض</button>
+<div id="section-ops" class="section">
+  <div class="card" style="margin-top:16px">
+    <div class="card-title" id="lbl-add-patient">تسجيل مريض جديد</div>
+    <div class="form-row">
+      <div><label class="form-label" id="lbl-name">الاسم</label><input type="text" id="p-name" placeholder="اسم المريض"></div>
+      <div><label class="form-label" id="lbl-phone">الموبايل</label><input type="tel" id="p-phone" placeholder="01x..."></div>
     </div>
-    <div class="card">
-      <div class="card-title" id="lbl-patient-list">قائمة المرضي</div>
-      <div id="patient-list"><div class="empty-state"><div class="empty-icon">👨‍⚕️</div><span id="empty-patients">مفيش مرضي لسه</span></div></div>
+    <div class="form-row">
+      <div><label class="form-label" id="lbl-type">النوع</label><select id="p-type"><option value="home">زيارة منزل</option><option value="clinic">عيادة</option></select></div>
+      <div><label class="form-label" id="lbl-loc">المنطقة</label><input type="text" id="p-location" placeholder="المعادي..."></div>
     </div>
+    <div class="form-row full" style="margin-bottom:10px">
+      <label class="form-label" id="lbl-complaint">الشكوى</label>
+      <textarea id="p-complaint" placeholder="ضغط دم، متابعة..."></textarea>
+    </div>
+    <button class="btn-voice" id="voice-btn" onclick="toggleVoice('p-complaint','voice-btn','voice-lbl')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+      <span id="voice-lbl">تسجيل صوتي</span>
+    </button>
+    <button class="btn-primary" onclick="addPatient()" id="btn-save">حفظ المريض ✓</button>
   </div>
+  <div class="card">
+    <div class="card-title" id="lbl-add-appt">إضافة موعد اليوم</div>
+    <div class="form-row">
+      <div><label class="form-label" id="lbl-time">الوقت</label><input type="time" id="appt-time"></div>
+      <div><label class="form-label" id="lbl-sel-patient">المريض</label><select id="appt-patient"><option value="">اختار مريض</option></select></div>
+    </div>
+    <div class="form-row full" style="margin-bottom:14px">
+      <label class="form-label" id="lbl-appt-note">ملاحظة</label>
+      <input type="text" id="appt-note" placeholder="متابعة / جديد...">
+    </div>
+    <button class="btn-primary" onclick="addAppointment()" id="btn-appt">إضافة للجدول</button>
+  </div>
+  <div class="card">
+    <div class="card-title" id="lbl-patient-list">قائمة المرضي</div>
+    <div id="patient-list"><div class="empty-state"><div class="empty-icon">👨‍⚕️</div><span id="empty-patients">مفيش مرضي لسه</span></div></div>
+  </div>
+</div>
 
-  <div id="section-schedule" class="section">
-    <div class="card">
-      <div class="card-title" id="lbl-today-sched">جدول اليوم</div>
-      <div id="schedule-list"><div class="empty-state"><div class="empty-icon">📅</div><span id="empty-sched">مفيش مواعيد اليوم</span></div></div>
-    </div>
-    <div class="card">
-      <div class="card-title" id="lbl-add-appt">إضافة موعد</div>
-      <div class="form-row">
-        <input type="time" id="appt-time">
-        <select id="appt-patient"></select>
-      </div>
-      <div class="form-row full" style="margin-bottom:14px">
-        <input type="text" id="appt-note" placeholder="ملاحظة (اختياري)">
-      </div>
-      <button class="btn-primary" onclick="addAppointment()" id="btn-appt">إضافة للجدول</button>
-    </div>
+<div id="section-growth" class="section">
+  <div class="card" style="margin-top:16px">
+    <div class="card-title" id="lbl-ask-ai">اسأل AI عن النمو</div>
+    <textarea id="acquire-input" placeholder="مثال: عندي 5 مرضي في المعادي، ايه اللي أعمله عشان أوصل لـ 20؟" style="margin-bottom:10px"></textarea>
+    <button class="btn-voice" id="acquire-voice-btn" onclick="toggleVoice('acquire-input','acquire-voice-btn','acquire-voice-lbl')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+      <span id="acquire-voice-lbl">تسجيل صوتي</span>
+    </button>
+    <button class="btn-primary" onclick="getAdvice()" id="btn-advice">اسأل AI</button>
+    <div id="advice-result"></div>
   </div>
+  <div class="card">
+    <div class="card-title" id="lbl-quick">أفعال سريعة</div>
+    <div class="quick-grid">
+      <button class="quick-btn" onclick="quickAction('referral')"><span class="qicon">📲</span><span id="q-referral">رسالة إحالة</span></button>
+      <button class="quick-btn" onclick="quickAction('social')"><span class="qicon">📱</span><span id="q-social">بوست سوشيال</span></button>
+      <button class="quick-btn" onclick="quickAction('followup')"><span class="qicon">💬</span><span id="q-followup">رسالة متابعة</span></button>
+      <button class="quick-btn" onclick="quickAction('bio')"><span class="qicon">👨‍⚕️</span><span id="q-bio">تعريف بنفسك</span></button>
+    </div>
+    <div id="quick-result"></div>
+  </div>
+</div>
 
-  <div id="section-acquire" class="section">
-    <div class="card">
-      <div class="card-title" id="lbl-ask-ai">اسأل AI</div>
-      <textarea id="acquire-input" placeholder="مثال: أنا طبيب عام في المعادي، عندي 5 مرضي بس، ايه اللي أعمله عشان أجيب أكتر؟" style="margin-bottom:10px"></textarea>
-      <button class="btn-voice" id="acquire-voice-btn" onclick="toggleVoice('acquire-input','acquire-voice-btn','acquire-voice-lbl')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-        <span id="acquire-voice-lbl">تسجيل صوتي</span>
-      </button>
-      <button class="btn-primary" onclick="getAdvice()" id="btn-advice">اسأل AI</button>
-      <div id="advice-result"></div>
+<div id="section-finance" class="section">
+  <div style="margin-top:16px">
+    <div class="finance-grid">
+      <div class="fcard fcard-blue"><div class="fcard-icon">💰</div><div class="fcard-num" id="f-today">0</div><div class="fcard-lbl" id="lbl-f-today">أرباح اليوم (ج)</div></div>
+      <div class="fcard fcard-green"><div class="fcard-icon">📈</div><div class="fcard-num" id="f-month">0</div><div class="fcard-lbl" id="lbl-f-month">الشهر (ج)</div></div>
+      <div class="fcard fcard-orange"><div class="fcard-icon">🏥</div><div class="fcard-num" id="f-visits">0</div><div class="fcard-lbl" id="lbl-f-visits">زيارات الشهر</div></div>
+      <div class="fcard fcard-red">
+        <div class="fcard-icon">⚙️</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <input type="number" id="fee-input" style="width:70px;padding:4px 8px;font-size:15px;font-weight:700;border:1.5px solid var(--gray-200);border-radius:8px" placeholder="150">
+          <span style="font-size:11px;color:var(--gray-400)" id="lbl-egp">ج</span>
+        </div>
+        <div class="fcard-lbl" id="lbl-f-fee">سعر الزيارة</div>
+      </div>
     </div>
     <div class="card">
-      <div class="card-title" id="lbl-quick">أفعال سريعة</div>
-      <div class="quick-grid">
-        <button class="quick-btn" onclick="quickAction('referral')" id="q-referral">رسالة إحالة من مريض</button>
-        <button class="quick-btn" onclick="quickAction('social')" id="q-social">بوست سوشيال ميديا</button>
-        <button class="quick-btn" onclick="quickAction('followup')" id="q-followup">رسالة متابعة</button>
-        <button class="quick-btn" onclick="quickAction('bio')" id="q-bio">تعريف بنفسك</button>
-      </div>
-      <div id="quick-result"></div>
+      <div class="card-title" id="lbl-recent-visits">آخر الزيارات</div>
+      <div id="finance-list"><div class="empty-state" style="padding:16px 0"><span id="empty-finance">مفيش زيارات لسه</span></div></div>
     </div>
   </div>
+</div>
+
+<div id="section-route" class="section">
+  <div class="card" style="margin-top:16px">
+    <div class="card-title" id="lbl-route">ترتيب الزيارات</div>
+    <div id="route-list"><div class="empty-state"><div class="empty-icon">🗺️</div><span id="empty-route">أضف مواعيد من Ops عشان تشوف الترتيب</span></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title" id="lbl-route-ai">اسأل AI يرتب الزيارات</div>
+    <textarea id="route-input" placeholder="مثال: عندي زيارات في المعادي، المقطم، وسط البلد. ابدأ من مدينة نصر. ايه أفضل ترتيب؟" style="margin-bottom:12px"></textarea>
+    <button class="btn-primary" onclick="getRouteAdvice()" id="btn-route">رتّب الزيارات بـ AI</button>
+    <div id="route-result"></div>
+  </div>
+</div>
 
 </div>
 
 <nav class="nav">
-  <button class="nav-btn active" onclick="showSection('dashboard')" id="nav-dashboard">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    <span id="nav-lbl-dashboard">الداشبورد</span>
-    <div class="nav-indicator"></div>
+  <button class="nav-btn active" onclick="showSection('home')" id="nav-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span id="nav-lbl-home">الرئيسية</span><div class="nav-dot"></div>
   </button>
-  <button class="nav-btn" onclick="showSection('patients')" id="nav-patients">
+  <button class="nav-btn" onclick="showSection('ops')" id="nav-ops">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    <span id="nav-lbl-patients">المرضي</span>
-    <div class="nav-indicator"></div>
+    <span id="nav-lbl-ops">Ops</span><div class="nav-dot"></div>
   </button>
-  <button class="nav-btn" onclick="showSection('schedule')" id="nav-schedule">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    <span id="nav-lbl-schedule">الجدول</span>
-    <div class="nav-indicator"></div>
+  <button class="nav-btn" onclick="showSection('growth')" id="nav-growth">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+    <span id="nav-lbl-growth">Growth</span><div class="nav-dot"></div>
   </button>
-  <button class="nav-btn" onclick="showSection('acquire')" id="nav-acquire">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-    <span id="nav-lbl-acquire">جلب عملاء</span>
-    <div class="nav-indicator"></div>
+  <button class="nav-btn" onclick="showSection('finance')" id="nav-finance">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <span id="nav-lbl-finance">Finance</span><div class="nav-dot"></div>
+  </button>
+  <button class="nav-btn" onclick="showSection('route')" id="nav-route">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="3" cy="6" r="2"/><circle cx="21" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M5 6h5l2 6 5-6h2"/><path d="M12 12v4"/></svg>
+    <span id="nav-lbl-route">Route</span><div class="nav-dot"></div>
   </button>
 </nav>
 
 <script>
-const APIKEY = '';
-let lang = 'ar';
-let patients = JSON.parse(localStorage.getItem('doc_patients')||'[]');
-let appointments = JSON.parse(localStorage.getItem('doc_appts')||'[]');
-let recognition = null;
-let recordingTarget = null;
-let deferredPrompt = null;
+let lang='ar';
+let patients=JSON.parse(localStorage.getItem('doc_patients')||'[]');
+let appointments=JSON.parse(localStorage.getItem('doc_appts')||'[]');
+let completedVisits=JSON.parse(localStorage.getItem('doc_completed')||'[]');
+let visitFee=parseInt(localStorage.getItem('doc_fee')||'150');
+let recognition=null,recordingTarget=null;
 
-const T = {
-  ar:{
-    'header-title':'مساعدك الطبي اليومي',
-    'lbl-today':'مريض اليوم','lbl-total':'إجمالي المرضي','lbl-followup':'متابعة مطلوبة',
-    'lbl-ai-dash':'اقتراحات AI','empty-insights':'سجّل مرضاك الأول عشان تشوف اقتراحات هنا',
-    'lbl-add-patient':'تسجيل مريض جديد','btn-save':'حفظ المريض',
-    'lbl-patient-list':'قائمة المرضي','empty-patients':'مفيش مرضي لسه',
-    'lbl-today-sched':'جدول اليوم','empty-sched':'مفيش مواعيد اليوم',
-    'lbl-add-appt':'إضافة موعد','btn-appt':'إضافة للجدول',
-    'lbl-ask-ai':'اسأل AI','btn-advice':'اسأل AI',
-    'lbl-quick':'أفعال سريعة',
-    'q-referral':'رسالة إحالة من مريض','q-social':'بوست سوشيال ميديا',
-    'q-followup':'رسالة متابعة','q-bio':'تعريف بنفسك',
-    'nav-lbl-dashboard':'الداشبورد','nav-lbl-patients':'المرضي',
-    'nav-lbl-schedule':'الجدول','nav-lbl-acquire':'جلب عملاء',
-    'voice-lbl':'تسجيل صوتي','acquire-voice-lbl':'تسجيل صوتي',
-    'recording':'جاري التسجيل...','home':'منزل','clinic':'عيادة',
-    'followup-badge':'متابعة','follow':'متابعة','delete':'حذف',
-    'thinking':'AI بيفكر...','select-patient':'اختار مريض',
-    'install-text':'ثبّت الـ App على موبايلك','install-btn':'تثبيت',
-    'type-home':'زيارة منزل','type-clinic':'عيادة',
-  },
-  en:{
-    'header-title':'Your Daily Medical Assistant',
-    'lbl-today':"Today's Patients",'lbl-total':'Total Patients','lbl-followup':'Follow-ups',
-    'lbl-ai-dash':'AI Insights','empty-insights':'Add your first patient to see insights',
-    'lbl-add-patient':'Add New Patient','btn-save':'Save Patient',
-    'lbl-patient-list':'Patient List','empty-patients':'No patients yet',
-    'lbl-today-sched':"Today's Schedule",'empty-sched':'No appointments today',
-    'lbl-add-appt':'Add Appointment','btn-appt':'Add to Schedule',
-    'lbl-ask-ai':'Ask AI','btn-advice':'Ask AI',
-    'lbl-quick':'Quick Actions',
-    'q-referral':'Referral Message','q-social':'Social Media Post',
-    'q-followup':'Follow-up Message','q-bio':'Intro Bio',
-    'nav-lbl-dashboard':'Dashboard','nav-lbl-patients':'Patients',
-    'nav-lbl-schedule':'Schedule','nav-lbl-acquire':'Get Clients',
-    'voice-lbl':'Voice Input','acquire-voice-lbl':'Voice Input',
-    'recording':'Recording...','home':'Home','clinic':'Clinic',
-    'followup-badge':'Follow-up','follow':'Follow-up','delete':'Delete',
-    'thinking':'AI thinking...','select-patient':'Select patient',
-    'install-text':'Add app to home screen','install-btn':'Install',
-    'type-home':'Home Visit','type-clinic':'Clinic',
-  }
+const T={
+  ar:{greeting:'صباح الخير، دكتور 👋','lbl-earnings':'أرباح اليوم','lbl-completed':'مكتملة','lbl-remaining':'متبقية','lbl-per-visit':'للزيارة (ج)','lbl-upcoming':'الزيارات القادمة','empty-upcoming':'مفيش زيارات اليوم — أضف من Ops','lbl-ai-home':'اقتراحات AI','empty-insights':'سجّل مرضاك الأول عشان تشوف اقتراحات','lbl-add-patient':'تسجيل مريض جديد','lbl-name':'الاسم','lbl-phone':'الموبايل','lbl-type':'النوع','lbl-loc':'المنطقة','lbl-complaint':'الشكوى','btn-save':'حفظ المريض ✓','lbl-add-appt':'إضافة موعد اليوم','lbl-time':'الوقت','lbl-sel-patient':'المريض','lbl-appt-note':'ملاحظة','btn-appt':'إضافة للجدول','lbl-patient-list':'قائمة المرضي','empty-patients':'مفيش مرضي لسه','lbl-ask-ai':'اسأل AI عن النمو','btn-advice':'اسأل AI','lbl-quick':'أفعال سريعة','q-referral':'رسالة إحالة','q-social':'بوست سوشيال','q-followup':'رسالة متابعة','q-bio':'تعريف بنفسك','lbl-f-today':'أرباح اليوم (ج)','lbl-f-month':'الشهر (ج)','lbl-f-visits':'زيارات الشهر','lbl-f-fee':'سعر الزيارة','lbl-egp':'ج','lbl-recent-visits':'آخر الزيارات','empty-finance':'مفيش زيارات لسه','lbl-route':'ترتيب الزيارات','empty-route':'أضف مواعيد من Ops عشان تشوف الترتيب','lbl-route-ai':'اسأل AI يرتب الزيارات','btn-route':'رتّب الزيارات بـ AI','nav-lbl-home':'الرئيسية','nav-lbl-ops':'Ops','nav-lbl-growth':'Growth','nav-lbl-finance':'Finance','nav-lbl-route':'Route','voice-lbl':'تسجيل صوتي','acquire-voice-lbl':'تسجيل صوتي','recording':'جاري التسجيل...','home':'منزل','clinic':'عيادة','followup-lbl':'متابعة','delete-lbl':'حذف','thinking':'AI بيفكر...','select-patient':'اختار مريض','type-home':'زيارة منزل','type-clinic':'عيادة','start-visit':'ابدأ الزيارة','history-lbl':'السجل'},
+  en:{greeting:'Good Morning, Doctor 👋','lbl-earnings':"Today's Earnings",'lbl-completed':'Completed','lbl-remaining':'Remaining','lbl-per-visit':'Per Visit (EGP)','lbl-upcoming':'Upcoming Visits','empty-upcoming':'No visits today — add from Ops','lbl-ai-home':'AI Insights','empty-insights':'Add your first patient to see insights','lbl-add-patient':'Add New Patient','lbl-name':'Name','lbl-phone':'Phone','lbl-type':'Type','lbl-loc':'Area','lbl-complaint':'Complaint','btn-save':'Save Patient ✓','lbl-add-appt':'Add Appointment','lbl-time':'Time','lbl-sel-patient':'Patient','lbl-appt-note':'Note','btn-appt':'Add to Schedule','lbl-patient-list':'Patient List','empty-patients':'No patients yet','lbl-ask-ai':'Ask AI for Growth','btn-advice':'Ask AI','lbl-quick':'Quick Actions','q-referral':'Referral Msg','q-social':'Social Post','q-followup':'Follow-up Msg','q-bio':'Intro Bio','lbl-f-today':"Today's Earnings",'lbl-f-month':'This Month (EGP)','lbl-f-visits':'Monthly Visits','lbl-f-fee':'Visit Fee','lbl-egp':'EGP','lbl-recent-visits':'Recent Visits','empty-finance':'No visits yet','lbl-route':'Visit Route','empty-route':'Add appointments in Ops to see route','lbl-route-ai':'Ask AI to Optimize Route','btn-route':'Optimize with AI','nav-lbl-home':'Home','nav-lbl-ops':'Ops','nav-lbl-growth':'Growth','nav-lbl-finance':'Finance','nav-lbl-route':'Route','voice-lbl':'Voice Input','acquire-voice-lbl':'Voice Input','recording':'Recording...','home':'Home','clinic':'Clinic','followup-lbl':'Follow-up','delete-lbl':'Delete','thinking':'AI thinking...','select-patient':'Select patient','type-home':'Home Visit','type-clinic':'Clinic','start-visit':'Start Visit','history-lbl':'History'}
 };
 
-function t(key){ return T[lang][key]||key; }
+function t(k){return T[lang][k]||k;}
 
 function setLang(l){
-  lang=l;
-  document.body.className=l;
+  lang=l;document.body.className=l;
   document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');
-  Object.keys(T[l]).forEach(k=>{const el=document.getElementById(k);if(el)el.textContent=T[l][k];});
-  const hs=document.getElementById('header-sub');
-  if(hs)hs.textContent=getDateStr();
-  const ptype=document.getElementById('p-type');
-  if(ptype){ptype.options[0].text=t('type-home');ptype.options[1].text=t('type-clinic');}
-  renderPatients();renderSchedule();updatePatientSelect();
+  Object.keys(T[l]).forEach(k=>{const el=document.getElementById(k);if(el&&el.tagName!=='INPUT'&&el.tagName!=='SELECT'&&el.tagName!=='TEXTAREA')el.textContent=T[l][k];});
+  document.getElementById('greeting').textContent=t('greeting');
+  const pt=document.getElementById('p-type');if(pt){pt.options[0].text=t('type-home');pt.options[1].text=t('type-clinic');}
+  updateTime();renderAll();
 }
 
-function getDateStr(){
-  const d=new Date();
-  return lang==='ar'
-    ? d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'})
-    : d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+function updateTime(){
+  const now=new Date();
+  document.getElementById('header-time').textContent=now.toLocaleTimeString(lang==='ar'?'ar-EG':'en-US',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('header-date').textContent=now.toLocaleDateString(lang==='ar'?'ar-EG':'en-US',{weekday:'long',day:'numeric',month:'long'});
 }
 
 function showSection(s){
@@ -312,82 +341,27 @@ function showSection(s){
 }
 
 function addPatient(){
-  const name=document.getElementById('p-name').value.trim();
-  if(!name)return;
+  const name=document.getElementById('p-name').value.trim();if(!name)return;
   const today=new Date().toISOString().split('T')[0];
-  patients.push({
-    id:Date.now(),
-    name,
-    phone:document.getElementById('p-phone').value.trim(),
-    type:document.getElementById('p-type').value,
-    location:document.getElementById('p-location').value.trim(),
-    complaint:document.getElementById('p-complaint').value.trim(),
-    date:today,followup:false
-  });
+  patients.push({id:Date.now(),name,phone:document.getElementById('p-phone').value.trim(),type:document.getElementById('p-type').value,location:document.getElementById('p-location').value.trim(),complaint:document.getElementById('p-complaint').value.trim(),date:today,followup:false});
   localStorage.setItem('doc_patients',JSON.stringify(patients));
   ['p-name','p-phone','p-location','p-complaint'].forEach(id=>document.getElementById(id).value='');
-  renderPatients();updateStats();updatePatientSelect();
+  renderAll();
 }
 
-function toggleFollowup(id){
-  const p=patients.find(x=>x.id===id);
-  if(p){p.followup=!p.followup;localStorage.setItem('doc_patients',JSON.stringify(patients));renderPatients();updateStats();}
-}
+function toggleFollowup(id){const p=patients.find(x=>x.id===id);if(p){p.followup=!p.followup;localStorage.setItem('doc_patients',JSON.stringify(patients));renderAll();}}
+function deletePatient(id){if(!confirm(lang==='ar'?'تحذف المريض ده؟':'Delete this patient?'))return;patients=patients.filter(x=>x.id!==id);appointments=appointments.filter(a=>a.patientId!==id);localStorage.setItem('doc_patients',JSON.stringify(patients));localStorage.setItem('doc_appts',JSON.stringify(appointments));renderAll();}
 
-function deletePatient(id){
-  if(!confirm(lang==='ar'?'تحذف المريض ده؟':'Delete this patient?'))return;
-  patients=patients.filter(x=>x.id!==id);
-  localStorage.setItem('doc_patients',JSON.stringify(patients));
-  appointments=appointments.filter(a=>a.patientId!==id);
+function markDone(apptId){
+  const a=appointments.find(x=>x.id===apptId);if(!a)return;
+  const p=patients.find(x=>x.id===a.patientId);
+  const fee=parseInt(document.getElementById('fee-input').value||visitFee)||150;
+  const today=new Date().toISOString().split('T')[0];
+  completedVisits.push({id:Date.now(),patientName:p?p.name:'',time:a.time,fee,date:today});
+  appointments=appointments.filter(x=>x.id!==apptId);
   localStorage.setItem('doc_appts',JSON.stringify(appointments));
-  renderPatients();updateStats();updatePatientSelect();renderSchedule();
-}
-
-function renderPatients(){
-  const list=document.getElementById('patient-list');
-  if(!patients.length){
-    list.innerHTML=`<div class="empty-state"><div class="empty-icon">👨‍⚕️</div><span>${t('empty-patients')}</span></div>`;
-    return;
-  }
-  list.innerHTML=[...patients].reverse().map(p=>{
-    const typeBadge=p.type==='home'
-      ?`<span class="badge badge-home">${t('home')}</span>`
-      :`<span class="badge badge-clinic">${t('clinic')}</span>`;
-    const fuBadge=p.followup?`<span class="badge badge-followup">${t('followup-badge')}</span>`:'';
-    return `<div class="patient-item">
-      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-        <span class="patient-name">${p.name}</span>${typeBadge}${fuBadge}
-      </div>
-      ${p.location?`<div class="patient-meta">${p.location}${p.phone?' · '+p.phone:''}</div>`:''}
-      ${p.complaint?`<div class="patient-complaint">${p.complaint.substring(0,100)}${p.complaint.length>100?'...':''}</div>`:''}
-      <div class="patient-actions">
-        <button class="action-chip${p.followup?' active':''}" onclick="toggleFollowup(${p.id})">${t('follow')}</button>
-        <button class="action-chip danger" onclick="deletePatient(${p.id})">${t('delete')}</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function updateStats(){
-  const today=new Date().toISOString().split('T')[0];
-  document.getElementById('stat-today').textContent=patients.filter(p=>p.date===today).length;
-  document.getElementById('stat-total').textContent=patients.length;
-  document.getElementById('stat-followup').textContent=patients.filter(p=>p.followup).length;
-  if(patients.length>0)generateInsights();
-}
-
-function generateInsights(){
-  const c=document.getElementById('dash-insights');
-  c.innerHTML=`<div class="ai-loading"><div class="spinner"></div><span>${t('thinking')}</span></div>`;
-  const today=new Date().toISOString().split('T')[0];
-  const todayPts=patients.filter(p=>p.date===today).length;
-  const fus=patients.filter(p=>p.followup).length;
-  const homes=patients.filter(p=>p.type==='home').length;
-  const prompt=lang==='ar'
-    ?`أنت مساعد طبي لطبيب حديث التخرج في مصر. عنده ${patients.length} مريض إجمالاً، ${todayPts} اليوم، ${fus} محتاجين متابعة، و${homes} زيارة منزل. اديه 3 اقتراحات عملية قصيرة بالعربي المصري الدارج عشان يحسن شغله. بدون مقدمات.`
-    :`You're an assistant for a new Egyptian doctor. ${patients.length} total patients, ${todayPts} today, ${fus} needing follow-up, ${homes} home visits. Give 3 short practical tips to improve their practice. No preamble.`;
-  callAI(prompt,txt=>{ c.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`; },
-    ()=>{ c.innerHTML=`<div class="ai-bubble">${lang==='ar'?'فيه مشكلة في الاتصال':'Connection error'}</div>`; });
+  localStorage.setItem('doc_completed',JSON.stringify(completedVisits));
+  renderAll();
 }
 
 function addAppointment(){
@@ -397,31 +371,64 @@ function addAppointment(){
   const today=new Date().toISOString().split('T')[0];
   appointments.push({id:Date.now(),time,patientId:parseInt(patId),note:document.getElementById('appt-note').value.trim(),date:today});
   localStorage.setItem('doc_appts',JSON.stringify(appointments));
-  document.getElementById('appt-time').value='';
-  document.getElementById('appt-note').value='';
-  renderSchedule();
+  document.getElementById('appt-time').value='';document.getElementById('appt-note').value='';
+  renderAll();
 }
 
-function renderSchedule(){
-  const list=document.getElementById('schedule-list');
+function renderAll(){updateStats();renderUpcoming();renderPatients();updatePatientSelect();renderFinance();renderRoute();}
+
+function updateStats(){
+  const today=new Date().toISOString().split('T')[0];
+  const todayAppts=appointments.filter(a=>a.date===today);
+  const todayDone=completedVisits.filter(v=>v.date===today);
+  const fee=parseInt(document.getElementById('fee-input').value||visitFee)||150;
+  const todayEarnings=todayDone.length*fee;
+  document.getElementById('earnings-amount').textContent=lang==='ar'?`${todayEarnings} جنيه`:`${todayEarnings} EGP`;
+  document.getElementById('stat-completed').textContent=todayDone.length;
+  document.getElementById('stat-remaining').textContent=todayAppts.length;
+  document.getElementById('stat-per-visit').textContent=fee;
+  document.getElementById('upcoming-badge').textContent=lang==='ar'?`${todayAppts.length} اليوم`:`${todayAppts.length} today`;
+  if(patients.length>0)generateInsights();
+}
+
+function renderUpcoming(){
+  const list=document.getElementById('upcoming-list');
   const today=new Date().toISOString().split('T')[0];
   const todayAppts=appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
-  if(!todayAppts.length){
-    list.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><span>${t('empty-sched')}</span></div>`;
-    return;
-  }
+  if(!todayAppts.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><span>${t('empty-upcoming')}</span></div>`;return;}
   list.innerHTML=todayAppts.map(a=>{
-    const p=patients.find(x=>x.id===a.patientId);
-    if(!p)return'';
-    return`<div class="schedule-item">
-      <div class="schedule-time">${a.time}</div>
-      <div class="schedule-dot ${p.type==='home'?'dot-home':'dot-clinic'}"></div>
-      <div>
-        <div class="schedule-name">${p.name}</div>
-        <div class="schedule-loc">${p.type==='home'?t('home'):t('clinic')}${p.location?' · '+p.location:''}${a.note?' · '+a.note:''}</div>
+    const p=patients.find(x=>x.id===a.patientId);if(!p)return'';
+    return`<div class="visit-card">
+      <div class="visit-card-top">
+        <span class="visit-time-badge">${a.time}</span>
+        <span class="visit-type-badge ${p.type==='home'?'vtype-home':'vtype-clinic'}">${p.type==='home'?t('home'):t('clinic')}${a.note?' · '+a.note:''}</span>
+      </div>
+      <div class="visit-name">${p.name}</div>
+      ${p.complaint?`<div class="visit-complaint">${p.complaint.substring(0,80)}</div>`:''}
+      <div class="visit-meta">
+        ${p.location?`<div class="visit-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${p.location}</div>`:''}
+        ${p.phone?`<div class="visit-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>${p.phone}</div>`:''}
+      </div>
+      <div class="visit-actions">
+        <button class="btn-start" onclick="markDone(${a.id})">▶ ${t('start-visit')}</button>
+        <button class="btn-secondary">${t('history-lbl')}</button>
       </div>
     </div>`;
   }).join('');
+}
+
+function renderPatients(){
+  const list=document.getElementById('patient-list');
+  if(!patients.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">👨‍⚕️</div><span>${t('empty-patients')}</span></div>`;return;}
+  list.innerHTML=[...patients].reverse().map(p=>`<div class="patient-item">
+    <div class="patient-top"><span class="patient-name">${p.name}</span><span class="badge ${p.type==='home'?'badge-home':'badge-clinic'}">${p.type==='home'?t('home'):t('clinic')}</span>${p.followup?`<span class="badge badge-followup">${t('followup-lbl')}</span>`:''}</div>
+    ${p.location||p.phone?`<div class="patient-meta">${[p.location,p.phone].filter(Boolean).join(' · ')}</div>`:''}
+    ${p.complaint?`<div class="patient-complaint">${p.complaint.substring(0,100)}${p.complaint.length>100?'...':''}</div>`:''}
+    <div class="patient-chips">
+      <button class="chip${p.followup?' active':''}" onclick="toggleFollowup(${p.id})">${t('followup-lbl')}</button>
+      <button class="chip danger" onclick="deletePatient(${p.id})">${t('delete-lbl')}</button>
+    </div>
+  </div>`).join('');
 }
 
 function updatePatientSelect(){
@@ -429,87 +436,91 @@ function updatePatientSelect(){
   sel.innerHTML=`<option value="">${t('select-patient')}</option>`+patients.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
 }
 
+function renderFinance(){
+  const today=new Date().toISOString().split('T')[0];
+  const fee=parseInt(document.getElementById('fee-input').value||visitFee)||150;
+  const todayDone=completedVisits.filter(v=>v.date===today);
+  const month=new Date().getMonth();
+  const monthDone=completedVisits.filter(v=>new Date(v.date).getMonth()===month);
+  document.getElementById('f-today').textContent=todayDone.length*fee;
+  document.getElementById('f-month').textContent=monthDone.reduce((s,v)=>s+(v.fee||fee),0);
+  document.getElementById('f-visits').textContent=monthDone.length;
+  const fl=document.getElementById('finance-list');
+  if(!completedVisits.length){fl.innerHTML=`<div class="empty-state" style="padding:16px 0"><span>${t('empty-finance')}</span></div>`;return;}
+  fl.innerHTML=[...completedVisits].reverse().slice(0,10).map(v=>`<div class="visit-fee-row"><div><div class="fee-name">${v.patientName||'—'}</div><div class="fee-type">${v.date} · ${v.time}</div></div><div class="fee-amount">+${v.fee||fee} ${lang==='ar'?'ج':'EGP'}</div></div>`).join('');
+}
+
+function renderRoute(){
+  const list=document.getElementById('route-list');
+  const today=new Date().toISOString().split('T')[0];
+  const todayAppts=appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+  if(!todayAppts.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">🗺️</div><span>${t('empty-route')}</span></div>`;return;}
+  list.innerHTML=todayAppts.map((a,i)=>{
+    const p=patients.find(x=>x.id===a.patientId);if(!p)return'';
+    return`<div class="sched-item"><div class="sched-time">${a.time}</div><div class="sched-dot ${p.type==='home'?'dot-home':'dot-clinic'}"></div><div><div class="sched-name">${i+1}. ${p.name}</div><div class="sched-loc">${p.type==='home'?t('home'):t('clinic')}${p.location?' · '+p.location:''}</div></div></div>`;
+  }).join('');
+}
+
+function generateInsights(){
+  const c=document.getElementById('home-insights');
+  c.innerHTML=`<div class="ai-loading"><div class="spinner"></div><span>${t('thinking')}</span></div>`;
+  const today=new Date().toISOString().split('T')[0];
+  const todayPts=patients.filter(p=>p.date===today).length;
+  const fus=patients.filter(p=>p.followup).length;
+  const homes=patients.filter(p=>p.type==='home').length;
+  const prompt=lang==='ar'?`أنت مساعد طبي لطبيب حديث التخرج في مصر. عنده ${patients.length} مريض إجمالاً، ${todayPts} اليوم، ${fus} محتاجين متابعة، و${homes} زيارة منزل. اديه 3 اقتراحات عملية قصيرة بالعربي المصري الدارج. بدون مقدمات.`:`You're an assistant for a new Egyptian doctor. ${patients.length} total patients, ${todayPts} today, ${fus} follow-ups, ${homes} home visits. Give 3 short practical tips. No preamble.`;
+  callAI(prompt,txt=>{c.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`;},()=>{c.innerHTML='';});
+}
+
 function getAdvice(){
   const input=document.getElementById('acquire-input').value.trim();
-  const r=document.getElementById('advice-result');
-  if(!input)return;
+  const r=document.getElementById('advice-result');if(!input)return;
   r.innerHTML=`<div class="ai-loading"><div class="spinner"></div><span>${t('thinking')}</span></div>`;
-  const prompt=lang==='ar'
-    ?`أنت خبير تسويق طبي في مصر. الطبيب بيقول: "${input}". اديه خطة عملية (3-4 خطوات) عشان يجيب عملاء جدد. بالعربي المصري الدارج. بدون مقدمات.`
-    :`You're a medical marketing expert in Egypt. The doctor says: "${input}". Give a practical 3-4 step plan to get new patients. No preamble.`;
-  callAI(prompt,txt=>{ r.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`; },
-    ()=>{ r.innerHTML=`<div class="ai-bubble">${lang==='ar'?'فيه مشكلة':'Error'}</div>`; });
+  const prompt=lang==='ar'?`أنت خبير تسويق طبي في مصر. الطبيب بيقول: "${input}". اديه خطة عملية (3-4 خطوات) بالعربي المصري. بدون مقدمات.`:`Medical marketing expert in Egypt. Doctor says: "${input}". Give a practical 3-4 step plan. No preamble.`;
+  callAI(prompt,txt=>{r.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`;},()=>{r.innerHTML='';});
+}
+
+function getRouteAdvice(){
+  const input=document.getElementById('route-input').value.trim();
+  const r=document.getElementById('route-result');if(!input)return;
+  r.innerHTML=`<div class="ai-loading"><div class="spinner"></div><span>${t('thinking')}</span></div>`;
+  const prompt=lang==='ar'?`أنت مساعد تخطيط مواعيد للطبيب في مصر. ${input}. اديه أفضل ترتيب للزيارات عشان يوفر وقت وبنزين. بالعربي المصري. بدون مقدمات.`:`Scheduling assistant for a doctor in Egypt. ${input}. Give the optimal visit order to save time and fuel. No preamble.`;
+  callAI(prompt,txt=>{r.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`;},()=>{r.innerHTML='';});
 }
 
 function quickAction(type){
   const r=document.getElementById('quick-result');
   r.innerHTML=`<div class="ai-loading"><div class="spinner"></div><span>${t('thinking')}</span></div>`;
   const prompts={
-    referral:lang==='ar'?'اكتب رسالة واتساب قصيرة (3 جمل) لطبيب حديث التخرج في مصر يطلب من مرضاه إحالة أصدقائهم. بالعربي المصري الدارج.':'Write a short WhatsApp message (3 sentences) for a new Egyptian doctor asking patients to refer friends.',
-    social:lang==='ar'?'اكتب بوست سوشيال ميديا لطبيب حديث التخرج في مصر بيعمل زيارات منازل. 4-5 أسطر. بالعربي.':'Write a 4-5 line social media post for a new Egyptian doctor doing home visits.',
-    followup:lang==='ar'?'اكتب رسالة واتساب متابعة من طبيب لمريض زاره الأسبوع الماضي. قصيرة ومهنية. بالعربي المصري.':'Write a short professional follow-up WhatsApp from a doctor to a patient visited last week.',
-    bio:lang==='ar'?'اكتب bio قصير (5 أسطر) لطبيب حديث التخرج في مصر بيعمل زيارات منازل وعيادة. للواتساب والسوشيال. بالعربي.':'Write a 5-line bio for a new Egyptian doctor doing home visits and clinic. For WhatsApp and social media.',
+    referral:lang==='ar'?'اكتب رسالة واتساب قصيرة (3 جمل) لطبيب حديث التخرج في مصر يطلب من مرضاه إحالة أصدقائهم. بالعربي المصري الدارج.':'Write a short WhatsApp message for a new Egyptian doctor asking patients to refer friends.',
+    social:lang==='ar'?'اكتب بوست فيسبوك لطبيب حديث التخرج في مصر بيعمل زيارات منازل. 4-5 أسطر. بالعربي.':'Write a Facebook post for a new Egyptian doctor doing home visits. 4-5 lines.',
+    followup:lang==='ar'?'اكتب رسالة واتساب متابعة من طبيب لمريض زاره الأسبوع الماضي. قصيرة ومهنية. بالعربي المصري.':'Write a follow-up WhatsApp from a doctor to a patient visited last week.',
+    bio:lang==='ar'?'اكتب bio قصير (5 أسطر) لطبيب حديث التخرج في مصر بيعمل زيارات منازل وعيادة. للواتساب. بالعربي.':'Write a 5-line bio for a new Egyptian doctor doing home visits and clinic.',
   };
-  callAI(prompts[type],txt=>{ r.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`; },
-    ()=>{ r.innerHTML=`<div class="ai-bubble">${lang==='ar'?'فيه مشكلة':'Error'}</div>`; });
+  callAI(prompts[type],txt=>{r.innerHTML=`<div class="ai-bubble">${txt.replace(/\n/g,'<br>')}</div>`;},()=>{r.innerHTML='';});
 }
 
 function callAI(prompt,onSuccess,onError){
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-  }).then(r=>r.json()).then(d=>{
-    const txt=d.content?.filter(x=>x.type==='text').map(x=>x.text).join('')||'';
-    if(txt)onSuccess(txt); else onError();
-  }).catch(onError);
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})}).then(r=>r.json()).then(d=>{const txt=d.content?.filter(x=>x.type==='text').map(x=>x.text).join('')||'';if(txt)onSuccess(txt);else onError();}).catch(onError);
 }
 
 function toggleVoice(targetId,btnId,lblId){
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
-    alert(lang==='ar'?'المتصفح مش بيدعم الصوت — استخدم Chrome':'Voice not supported — use Chrome');
-    return;
-  }
-  const btn=document.getElementById(btnId);
-  const lbl=document.getElementById(lblId);
-  if(recordingTarget===targetId&&recognition){
-    recognition.stop();recordingTarget=null;
-    btn.classList.remove('recording');lbl.textContent=t(lblId);
-    return;
-  }
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert(lang==='ar'?'استخدم Chrome':'Use Chrome');return;}
+  const btn=document.getElementById(btnId),lbl=document.getElementById(lblId);
+  if(recordingTarget===targetId&&recognition){recognition.stop();recordingTarget=null;btn.classList.remove('recording');lbl.textContent=t(lblId);return;}
   if(recognition)recognition.stop();
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SR();
-  recognition.lang=lang==='ar'?'ar-EG':'en-US';
-  recognition.continuous=false;recognition.interimResults=false;
-  recognition.onresult=e=>{
-    const el=document.getElementById(targetId);
-    el.value+=(el.value?' ':'')+e.results[0][0].transcript;
-    recordingTarget=null;btn.classList.remove('recording');lbl.textContent=t(lblId);
-  };
-  recognition.onerror=recognition.onend=()=>{
-    if(recordingTarget===targetId){recordingTarget=null;btn.classList.remove('recording');lbl.textContent=t(lblId);}
-  };
-  recognition.start();
-  recordingTarget=targetId;btn.classList.add('recording');lbl.textContent=t('recording');
+  recognition=new SR();recognition.lang=lang==='ar'?'ar-EG':'en-US';recognition.continuous=false;recognition.interimResults=false;
+  recognition.onresult=e=>{const el=document.getElementById(targetId);el.value+=(el.value?' ':'')+e.results[0][0].transcript;recordingTarget=null;btn.classList.remove('recording');lbl.textContent=t(lblId);};
+  recognition.onerror=recognition.onend=()=>{if(recordingTarget===targetId){recordingTarget=null;btn.classList.remove('recording');lbl.textContent=t(lblId);}};
+  recognition.start();recordingTarget=targetId;btn.classList.add('recording');lbl.textContent=t('recording');
 }
 
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();deferredPrompt=e;
-  const banner=document.getElementById('install-banner');
-  banner.classList.remove('hidden');
-});
-
-function installApp(){
-  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').classList.add('hidden');});}
-}
-
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
-document.getElementById('header-sub').textContent=getDateStr();
-renderPatients();renderSchedule();updateStats();updatePatientSelect();
+document.getElementById('fee-input').value=visitFee;
+document.getElementById('fee-input').addEventListener('change',function(){visitFee=parseInt(this.value)||150;localStorage.setItem('doc_fee',visitFee);updateStats();renderFinance();});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+setInterval(updateTime,30000);
+updateTime();renderAll();
 </script>
 </body>
 </html>
